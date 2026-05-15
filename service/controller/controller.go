@@ -180,6 +180,11 @@ func (c *Controller) Close() error {
 			}
 		}
 	}
+	if closer, ok := c.apiClient.(interface{ Close() error }); ok {
+		if err := closer.Close(); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

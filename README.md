@@ -64,6 +64,7 @@ A Xray backend framework that can easily support many panels.
 | [WHMCS (V2RaySocks)](https://v2raysocks.doxtex.com/)   | √     | √      | √                       |
 | [GoV2Panel](https://github.com/pingProMax/gov2panel)   | √     | √      | √                       |
 | [BunPanel](https://github.com/pennyMorant/bunpanel-release)   | √     | √      | √                       |
+| [Xboard](https://github.com/cedar2025/Xboard)          | √     | √      | √                       |
 
 ## 软件安装
 
@@ -105,5 +106,4 @@ wget -N https://raw.githubusercontent.com/vahiru/XrayR-release/master/install.sh
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/vahiru/XrayR.svg)](https://starchart.cc/vahiru/XrayR)
-
 

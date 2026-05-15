@@ -65,6 +65,7 @@ This project is just my personal learning and development and maintenance. I do 
 | [ProxyPanel](https://github.com/ProxyPanel/ProxyPanel) | √     | √      | √                       |
 | [WHMCS (V2RaySocks)](https://v2raysocks.doxtex.com/)   | √     | √      | √                       |
 | [BunPanel](https://github.com/pennyMorant/bunpanel-release)   | √     | √      | √                       |
+| [Xboard](https://github.com/cedar2025/Xboard)          | √     | √      | √                       |
 
 ## Software Installation
 
@@ -106,5 +107,4 @@ wget -N https://raw.githubusercontent.com/vahiru/XrayR-release/master/install.sh
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/vahiru/XrayR.svg)](https://starchart.cc/vahiru/XrayR)
-
 
