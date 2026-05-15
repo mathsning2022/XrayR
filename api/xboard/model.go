@@ -1,9 +1,14 @@
 package xboard
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"reflect"
+	"strconv"
 	"strings"
+
+	"github.com/go-viper/mapstructure/v2"
 )
 
 type handshakeResponse struct {
@@ -169,4 +174,73 @@ type user struct {
 
 type usersResponse struct {
 	Users []user `json:"users"`
+}
+
+func decodeWeakJSON(data []byte, output interface{}) error {
+	var raw interface{}
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.UseNumber()
+	if err := decoder.Decode(&raw); err != nil {
+		return err
+	}
+	return decodeWeakRaw(raw, output)
+}
+
+func decodeWeakRaw(input interface{}, output interface{}) error {
+	config := &mapstructure.DecoderConfig{
+		Result:           output,
+		WeaklyTypedInput: true,
+		TagName:          "json",
+		DecodeHook: mapstructure.ComposeDecodeHookFunc(
+			jsonNumberDecodeHook,
+			stringOrArrayDecodeHook,
+			mapstructure.StringToSliceHookFunc(","),
+		),
+	}
+	decoder, err := mapstructure.NewDecoder(config)
+	if err != nil {
+		return err
+	}
+	return decoder.Decode(input)
+}
+
+func jsonNumberDecodeHook(_, target reflect.Type, data interface{}) (interface{}, error) {
+	number, ok := data.(json.Number)
+	if !ok {
+		return data, nil
+	}
+	switch target.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return strconv.ParseInt(number.String(), 10, target.Bits())
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return strconv.ParseUint(number.String(), 10, target.Bits())
+	case reflect.Float32, reflect.Float64:
+		return strconv.ParseFloat(number.String(), target.Bits())
+	case reflect.String:
+		return number.String(), nil
+	default:
+		return data, nil
+	}
+}
+
+func stringOrArrayDecodeHook(_, target reflect.Type, data interface{}) (interface{}, error) {
+	if target != reflect.TypeOf(stringOrArray("")) {
+		return data, nil
+	}
+	switch value := data.(type) {
+	case string:
+		return stringOrArray(value), nil
+	case []string:
+		return stringOrArray(strings.Join(value, "\n")), nil
+	case []interface{}:
+		items := make([]string, 0, len(value))
+		for _, item := range value {
+			if s, ok := item.(string); ok {
+				items = append(items, s)
+			}
+		}
+		return stringOrArray(strings.Join(items, "\n")), nil
+	default:
+		return data, nil
+	}
 }

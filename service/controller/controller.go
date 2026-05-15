@@ -597,10 +597,10 @@ func (c *Controller) userInfoMonitor() (err error) {
 	// Report Online info
 	if onlineDevice, err := c.GetOnlineDevice(c.Tag); err != nil {
 		c.logger.Print(err)
-	} else if len(*onlineDevice) > 0 {
+	} else if len(*onlineDevice) > 0 || c.panelType == "Xboard" {
 		if err = c.apiClient.ReportNodeOnlineUsers(onlineDevice); err != nil {
 			c.logger.Print(err)
-		} else {
+		} else if len(*onlineDevice) > 0 {
 			c.logger.Printf("Report %d online users", len(*onlineDevice))
 		}
 	}

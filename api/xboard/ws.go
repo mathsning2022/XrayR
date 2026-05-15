@@ -203,7 +203,7 @@ func (c *APIClient) sendLastWSState() {
 	c.wsMu.RLock()
 	devices := cloneDeviceMap(c.lastDevices)
 	c.wsMu.RUnlock()
-	if len(devices) > 0 {
+	if devices != nil {
 		c.sendWS(wsEventReportDevices, c.deviceReportPayload(devices))
 	}
 }
@@ -228,7 +228,7 @@ func (c *APIClient) handleWSMessage(msg wsMessage, writeCh chan<- wsMessage) {
 		return
 	case wsEventSyncConfig:
 		var payload syncConfigPayload
-		if err := json.Unmarshal(msg.Data, &payload); err != nil {
+		if err := decodeWeakJSON(msg.Data, &payload); err != nil {
 			log.Debugf("decode Xboard sync.config failed: %s", err)
 			return
 		}
@@ -243,7 +243,7 @@ func (c *APIClient) handleWSMessage(msg wsMessage, writeCh chan<- wsMessage) {
 		}
 	case wsEventSyncUsers:
 		var payload syncUsersPayload
-		if err := json.Unmarshal(msg.Data, &payload); err != nil {
+		if err := decodeWeakJSON(msg.Data, &payload); err != nil {
 			log.Debugf("decode Xboard sync.users failed: %s", err)
 			return
 		}
@@ -253,7 +253,7 @@ func (c *APIClient) handleWSMessage(msg wsMessage, writeCh chan<- wsMessage) {
 		c.setUsers(payload.Users)
 	case wsEventSyncUserDelta:
 		var payload syncUserDeltaPayload
-		if err := json.Unmarshal(msg.Data, &payload); err != nil {
+		if err := decodeWeakJSON(msg.Data, &payload); err != nil {
 			log.Debugf("decode Xboard sync.user.delta failed: %s", err)
 			return
 		}
@@ -287,7 +287,7 @@ func (c *APIClient) nodeStatusWSPayload(status map[string]interface{}) map[strin
 }
 
 func cloneDeviceMap(src map[int][]string) map[int][]string {
-	if len(src) == 0 {
+	if src == nil {
 		return nil
 	}
 	out := make(map[int][]string, len(src))

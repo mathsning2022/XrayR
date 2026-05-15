@@ -229,13 +229,13 @@ func (c *APIClient) ReportNodeOnlineUsers(onlineUsers *[]api.OnlineUser) error {
 		online[uid] = len(alive[uid])
 		devices[onlineUser.UID] = append(devices[onlineUser.UID], onlineUser.IP)
 	}
-	if len(alive) == 0 {
-		return nil
-	}
 	c.wsMu.Lock()
 	c.lastDevices = cloneDeviceMap(devices)
 	c.wsMu.Unlock()
 	c.sendWS("report.devices", c.deviceReportPayload(devices))
+	if len(alive) == 0 {
+		return nil
+	}
 	return c.postReport(map[string]interface{}{
 		"alive":  alive,
 		"online": online,
@@ -341,7 +341,7 @@ func (c *APIClient) fetchConfig() (*nodeConfig, error) {
 	}
 
 	var cfg nodeConfig
-	if err := json.Unmarshal(res.Body(), &cfg); err != nil {
+	if err := decodeWeakJSON(res.Body(), &cfg); err != nil {
 		return nil, err
 	}
 	if cfg.ServerPort == 0 {
@@ -374,11 +374,8 @@ func (c *APIClient) fetchUsers() ([]user, error) {
 	}
 
 	var out usersResponse
-	if err := json.Unmarshal(res.Body(), &out); err != nil {
+	if err := decodeWeakJSON(res.Body(), &out); err != nil {
 		return nil, err
-	}
-	if len(out.Users) == 0 {
-		return nil, errors.New("users is null")
 	}
 	return out.Users, nil
 }
